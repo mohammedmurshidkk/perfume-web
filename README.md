@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Maison Élan perfume website
 
-## Getting Started
+Next.js (App Router) + Tailwind, with GSAP ScrollTrigger, Lenis smooth scroll and Framer Motion.
 
-First, run the development server:
-
+## Run
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000, admin at /admin (default password admin123)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
+| Variable | Purpose |
+| --- | --- |
+| `ADMIN_PASSWORD` | Admin login password (change before going live) |
+| `ADMIN_SECRET` | Optional extra secret for signing the admin cookie |
+| `NEXT_PUBLIC_SITE_URL` | Public URL, used for canonical links, sitemap and WhatsApp messages |
+| `NEXT_PUBLIC_HERO_VIDEO` | Optional, e.g. `/videos/hero.mp4` in `public/` to use a video hero |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Content
+- Products, testimonials and settings (WhatsApp number, currency, contact) are edited in `/admin`.
+- Data lives in `data/db.json` (created from `src/lib/seed.ts` on first run); uploads in `data/uploads/`.
+  Host on a server with a persistent disk (VPS, Railway, Render). For serverless hosting, replace `src/lib/db.ts` with Supabase/Postgres.
+- Brand name and SEO copy: `src/lib/site.ts`.
