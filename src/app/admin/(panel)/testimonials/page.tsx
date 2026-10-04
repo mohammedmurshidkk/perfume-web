@@ -3,7 +3,7 @@ import { deleteTestimonial, saveTestimonial } from "../../actions";
 import { btn, card, input, label } from "@/components/admin/ui";
 
 export default async function AdminTestimonials() {
-  const [items, products] = await Promise.all([getTestimonials(), getProducts({ includeInactive: true })]);
+  const [items, products] = await Promise.all([getTestimonials({ fresh: true }), getProducts({ includeInactive: true, fresh: true })]);
   return (
     <div className="mx-auto max-w-5xl">
       <h1 className="font-display text-4xl">Testimonials</h1>

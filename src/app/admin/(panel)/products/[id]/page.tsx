@@ -5,7 +5,7 @@ import { getProducts, getSettings } from "@/lib/db";
 
 export default async function EditProduct({ params }: PageProps<"/admin/products/[id]">) {
   const { id } = await params;
-  const [products, settings] = await Promise.all([getProducts({ includeInactive: true }), getSettings()]);
+  const [products, settings] = await Promise.all([getProducts({ includeInactive: true, fresh: true }), getSettings({ fresh: true })]);
   const product = products.find((p) => p.id === id);
   if (!product) notFound();
   return (

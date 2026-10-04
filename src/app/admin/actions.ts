@@ -1,13 +1,14 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { randomUUID } from "crypto";
 import { checkPassword, createSession, destroySession, requireAdmin } from "@/lib/auth";
-import { updateDB, readDB } from "@/lib/db";
+import { updateDB, readDB, DB_TAG } from "@/lib/db";
 import { slugify } from "@/lib/format";
 import { BOTTLES, CATEGORIES, GENDERS, type BottleShape, type Category, type Gender, type Product } from "@/lib/types";
 
 function refreshSite() {
+  updateTag(DB_TAG);
   revalidatePath("/", "layout");
 }
 
@@ -48,7 +49,7 @@ export async function saveProduct(_: SaveState, fd: FormData): Promise<SaveState
   const offerPrice = offerRaw ? num(fd, "offerPrice") : null;
   if (offerPrice !== null && (offerPrice <= 0 || offerPrice >= price)) return { error: "Offer price must be lower than the regular price (leave empty for no offer)." };
 
-  const db = await readDB();
+  const db = await readDB({ fresh: true });
   const slug = slugify(str(fd, "slug") || name);
   if (!slug) return { error: "Please enter a valid URL slug." };
   if (db.products.some((p) => p.slug === slug && p.id !== id)) return { error: `Another product already uses the URL "${slug}".` };
@@ -78,11 +79,15 @@ export async function saveProduct(_: SaveState, fd: FormData): Promise<SaveState
     sillage: clamp(num(fd, "sillage", 3), 1, 5),
   };
 
-  await updateDB((d) => {
-    const i = d.products.findIndex((p) => p.id === product.id);
-    if (i >= 0) d.products[i] = product;
-    else d.products.unshift(product);
-  });
+  try {
+    await updateDB((d) => {
+      const i = d.products.findIndex((p) => p.id === product.id);
+      if (i >= 0) d.products[i] = product;
+      else d.products.unshift(product);
+    });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Could not save." };
+  }
   refreshSite();
   redirect("/admin?saved=1");
 }

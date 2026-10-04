@@ -6,7 +6,7 @@ import Bottle from "@/components/Bottle";
 import { btn, card } from "@/components/admin/ui";
 
 export default async function AdminProducts({ searchParams }: PageProps<"/admin">) {
-  const [products, settings, sp] = await Promise.all([getProducts({ includeInactive: true }), getSettings(), searchParams]);
+  const [products, settings, sp] = await Promise.all([getProducts({ includeInactive: true, fresh: true }), getSettings({ fresh: true }), searchParams]);
   const stats = [
     { l: "Products", v: products.length },
     { l: "Best sellers", v: products.filter((p) => p.bestSeller).length },
