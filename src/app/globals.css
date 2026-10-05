@@ -16,12 +16,12 @@
 }
 
 html {
-  background: var(--color-ink);
+  background: #ffffff;
 }
 
 body {
-  background: var(--color-ink);
-  color: var(--color-cream);
+  background: #ffffff;
+  color: #1a1a1a;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -115,3 +115,23 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Simple storefront (no animation) */
+.shop {
+  font-family: var(--font-jost), system-ui, sans-serif;
+  color: #1a1a1a;
+  background: #fff;
+}
+.shop ::selection { background: #1a1a1a; color: #fff; }
+.shop .container-shop { margin-inline: auto; max-width: 1240px; padding-inline: 16px; }
+@media (min-width: 768px) { .shop .container-shop { padding-inline: 24px; } }
+.shop .section-title { font-size: 1.75rem; font-weight: 500; letter-spacing: 0.01em; text-align: center; }
+@media (min-width: 768px) { .shop .section-title { font-size: 2rem; } }
+.shop .btn-dark { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; background: #1a1a1a; color: #fff; padding: .8rem 1.6rem; font-size: .8rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.shop .btn-dark:hover { background: #a37e4c; }
+.shop .btn-line { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border: 1px solid #1a1a1a; color: #1a1a1a; padding: .75rem 1.5rem; font-size: .8rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.shop .btn-line:hover { background: #1a1a1a; color: #fff; }
+.shop .btn-wa { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; background: #1f9d55; color: #fff; padding: .9rem 1.6rem; font-size: .85rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+.shop .btn-wa:hover { background: #17834a; }
+.shop details > summary { list-style: none; cursor: pointer; }
+.shop details > summary::-webkit-details-marker { display: none; }

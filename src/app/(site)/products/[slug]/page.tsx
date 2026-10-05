@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ProductGallery from "@/components/products/ProductGallery";
-import Meter from "@/components/products/Meter";
-import ProductCard from "@/components/ProductCard";
-import Magnetic from "@/components/motion/Magnetic";
-import Reveal from "@/components/motion/Reveal";
-import RevealText from "@/components/motion/RevealText";
+import ProductPhotos from "@/components/shop/ProductPhotos";
+import ShopProductCard from "@/components/shop/ShopProductCard";
 import JsonLd from "@/components/JsonLd";
 import { WhatsAppIcon } from "@/components/icons";
 import { getProductBySlug, getProducts, getSettings } from "@/lib/db";
@@ -43,10 +39,12 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
   const related = all.filter((x) => x.id !== p.id).sort((a, b) => Number(b.category === p.category) - Number(a.category === p.category)).slice(0, 4);
 
   const pyramid = [
-    { k: "Top", v: p.notes.top, d: "First 15 minutes" },
-    { k: "Heart", v: p.notes.heart, d: "2 to 4 hours" },
-    { k: "Base", v: p.notes.base, d: "The lasting trail" },
+    { k: "Top", v: p.notes.top },
+    { k: "Heart", v: p.notes.heart },
+    { k: "Base", v: p.notes.base },
   ];
+  const longevityWords = ["Light", "Moderate", "Long lasting", "Very long lasting", "Exceptional (12h+)"];
+  const sillageWords = ["Intimate", "Soft", "Moderate", "Strong", "Room filling"];
 
   return (
     <>
@@ -76,114 +74,88 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: site.url },
-              { "@type": "ListItem", position: 2, name: "Collection", item: `${site.url}/products` },
+              { "@type": "ListItem", position: 2, name: "Shop", item: `${site.url}/products` },
               { "@type": "ListItem", position: 3, name: p.name, item: url },
             ],
           },
         ]}
       />
-      <section className="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8 md:pt-40">
-        <nav aria-label="Breadcrumb" className="mb-10 text-xs tracking-[0.2em] text-muted uppercase">
-          <Link href="/" className="hover:text-gold">Home</Link> <span className="mx-2">/</span>
-          <Link href="/products" className="hover:text-gold">Collection</Link> <span className="mx-2">/</span>
-          <span className="text-cream">{p.name}</span>
+      <div className="container-shop py-6">
+        <nav aria-label="Breadcrumb" className="text-sm text-neutral-500">
+          <Link href="/" className="hover:text-black">Home</Link> <span className="mx-1">/</span>
+          <Link href="/products" className="hover:text-black">Shop</Link> <span className="mx-1">/</span>
+          <Link href={`/products?category=${p.category}`} className="hover:text-black">{p.category}</Link> <span className="mx-1">/</span>
+          <span className="text-black">{p.name}</span>
         </nav>
-        <div className="grid gap-12 md:grid-cols-2 md:gap-16">
-          <div className="md:sticky md:top-28 md:self-start">
-            <ProductGallery product={p} />
+      </div>
+
+      <section className="container-shop grid gap-10 pb-14 md:grid-cols-2 md:gap-14">
+        <ProductPhotos product={p} />
+        <div>
+          <h1 className="text-3xl font-medium md:text-4xl">{p.name} – {p.sizeMl}ml</h1>
+          <p className="mt-2 text-neutral-600">{p.tagline}</p>
+          <p className="mt-5 flex flex-wrap items-baseline gap-3">
+            {onOffer(p) && <span className="text-lg text-neutral-400 line-through">{money(p.price, settings)}</span>}
+            <span className="text-3xl font-semibold">{money(finalPrice(p), settings)}</span>
+            {onOffer(p) && <span className="bg-[#c0392b] px-2 py-1 text-xs font-medium text-white">Save {discountPct(p)}%</span>}
+          </p>
+          <p className={`mt-3 text-sm font-medium ${stock.tone === "out" ? "text-[#c0392b]" : stock.tone === "low" ? "text-amber-600" : "text-[#1f9d55]"}`}>{stock.text}</p>
+
+          <p className="mt-6 leading-relaxed text-neutral-700">{p.description}</p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href={buy} target="_blank" rel="noopener noreferrer" className="btn-wa flex-1">
+              <WhatsAppIcon className="h-5 w-5" /> {stock.tone === "out" ? "Enquire on WhatsApp" : "Buy Now on WhatsApp"}
+            </a>
+            <a href={ask} target="_blank" rel="noopener noreferrer" className="btn-line">Ask a question</a>
           </div>
-          <div>
-            <Reveal>
-              <p className="eyebrow">{p.category} · {p.gender} · {p.sizeMl}ml</p>
-            </Reveal>
-            <RevealText as="h1" text={p.name} className="mt-4 font-display text-6xl leading-none text-cream md:text-7xl" />
-            <Reveal delay={0.1}>
-              <p className="mt-4 font-display text-2xl italic text-cream/70">{p.tagline}</p>
-              <div className="mt-8 flex flex-wrap items-baseline gap-3">
-                <span className="text-4xl text-gold-2">{money(finalPrice(p), settings)}</span>
-                {onOffer(p) && (
-                  <>
-                    <span className="text-lg text-muted line-through">{money(p.price, settings)}</span>
-                    <span className="rounded-full bg-gold px-3 py-1 text-xs font-semibold text-ink">Save {discountPct(p)}%</span>
-                  </>
-                )}
-              </div>
-              <p className={`mt-3 flex items-center gap-2 text-sm ${stock.tone === "out" ? "text-red-300" : stock.tone === "low" ? "text-amber-300" : "text-emerald-300"}`}>
-                <span className="relative flex h-2 w-2">
-                  {stock.tone !== "out" && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-60" />}
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-current" />
-                </span>
-                {stock.text}
-              </p>
-            </Reveal>
-            <Reveal delay={0.2}>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Magnetic strength={0.3}>
-                  <a href={buy} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 rounded-full bg-gold px-9 py-5 text-sm font-semibold tracking-[0.14em] text-ink uppercase shadow-[0_20px_60px_-15px_rgba(200,164,106,0.6)] transition-colors hover:bg-gold-2">
-                    <WhatsAppIcon /> {stock.tone === "out" ? "Enquire on WhatsApp" : "Buy on WhatsApp"}
-                  </a>
-                </Magnetic>
-                <a href={ask} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-full border border-cream/25 px-7 py-5 text-sm tracking-[0.14em] text-cream uppercase hover:border-gold hover:text-gold">
-                  Ask a question
-                </a>
-              </div>
-              <p className="mt-4 text-xs text-muted">Tapping Buy opens WhatsApp with this perfume&apos;s details filled in. No account or payment needed here.</p>
-            </Reveal>
+          <p className="mt-3 text-xs text-neutral-500">Tapping Buy opens WhatsApp with this product&apos;s details filled in. Our team confirms delivery and payment with you there.</p>
 
-            <Reveal delay={0.1} className="mt-14 border-t border-white/10 pt-10">
-              <h2 className="eyebrow mb-4">About this fragrance</h2>
-              <p className="text-lg leading-relaxed text-cream/75">{p.description}</p>
-            </Reveal>
-
-            <div className="mt-12">
-              <h2 className="eyebrow mb-6">Scent pyramid</h2>
-              <ol className="space-y-3">
-                {pyramid.map((n, i) => (
-                  <Reveal key={n.k} delay={i * 0.1} y={30}>
-                    <li className="flex items-center justify-between gap-6 rounded-2xl border border-white/10 bg-ink-2 px-6 py-5">
-                      <div>
-                        <p className="font-display text-2xl text-cream">{n.k} notes</p>
-                        <p className="text-xs text-muted">{n.d}</p>
-                      </div>
-                      <p className="text-right text-gold-2">{n.v.join(" · ")}</p>
-                    </li>
-                  </Reveal>
-                ))}
-              </ol>
-            </div>
-
-            <div className="mt-12 grid gap-6 sm:grid-cols-2">
-              <Meter label="Longevity" value={p.longevity} words={["Light", "Moderate", "Long", "Very long", "Exceptional"]} />
-              <Meter label="Projection" value={p.sillage} words={["Intimate", "Soft", "Moderate", "Strong", "Room filling"]} />
-            </div>
-
-            {p.features.length > 0 && (
-              <div className="mt-12">
-                <h2 className="eyebrow mb-6">Features</h2>
-                <ul className="grid gap-3 sm:grid-cols-2">
-                  {p.features.map((f, i) => (
-                    <Reveal key={f} delay={i * 0.06} y={20}>
-                      <li className="flex gap-3 text-cream/80"><span className="mt-1.5 text-gold">✦</span>{f}</li>
-                    </Reveal>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+          <dl className="mt-8 space-y-1 border-t border-neutral-200 pt-5 text-sm">
+            <div className="flex gap-2"><dt className="text-neutral-500">SKU:</dt><dd>{p.id.toUpperCase()}</dd></div>
+            <div className="flex gap-2"><dt className="text-neutral-500">Category:</dt><dd><Link className="hover:underline" href={`/products?category=${p.category}`}>{p.category}</Link>, <Link className="hover:underline" href={`/products?gender=${p.gender}`}>{p.gender}</Link></dd></div>
+            <div className="flex gap-2"><dt className="text-neutral-500">Size:</dt><dd>{p.sizeMl}ml</dd></div>
+          </dl>
         </div>
       </section>
 
-      {related.length > 0 && (
-        <section className="border-t border-white/10 py-24" aria-labelledby="related-title">
-          <div className="mx-auto max-w-7xl px-5 md:px-8">
-            <RevealText as="h2" id="related-title" text="You may also love" className="mb-12 font-display text-5xl text-cream md:text-6xl" />
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {related.map((r, i) => (
-                <Reveal key={r.id} delay={i * 0.08} y={60}>
-                  <ProductCard product={r} settings={settings} siteUrl={site.url} />
-                </Reveal>
+      <section className="container-shop grid gap-10 border-t border-neutral-200 py-12 md:grid-cols-2">
+        <div>
+          <h2 className="mb-4 text-xl font-medium">Fragrance Notes</h2>
+          <table className="w-full border border-neutral-200 text-sm">
+            <tbody>
+              {pyramid.map((n) => (
+                <tr key={n.k} className="border-b border-neutral-200 last:border-0">
+                  <th scope="row" className="w-32 bg-[#f7f5f2] px-4 py-3 text-left font-medium">{n.k} notes</th>
+                  <td className="px-4 py-3">{n.v.join(", ")}</td>
+                </tr>
               ))}
-            </div>
+              <tr className="border-b border-neutral-200">
+                <th scope="row" className="bg-[#f7f5f2] px-4 py-3 text-left font-medium">Longevity</th>
+                <td className="px-4 py-3">{longevityWords[p.longevity - 1] ?? "Moderate"}</td>
+              </tr>
+              <tr>
+                <th scope="row" className="bg-[#f7f5f2] px-4 py-3 text-left font-medium">Projection</th>
+                <td className="px-4 py-3">{sillageWords[p.sillage - 1] ?? "Moderate"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        {p.features.length > 0 && (
+          <div>
+            <h2 className="mb-4 text-xl font-medium">Product Details</h2>
+            <ul className="list-disc space-y-2 pl-5 text-sm text-neutral-700">
+              {p.features.map((f) => <li key={f}>{f}</li>)}
+            </ul>
+          </div>
+        )}
+      </section>
+
+      {related.length > 0 && (
+        <section className="container-shop border-t border-neutral-200 py-12" aria-labelledby="related-title">
+          <h2 id="related-title" className="section-title mb-8">Related Products</h2>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 lg:gap-x-6">
+            {related.map((r) => <ShopProductCard key={r.id} product={r} settings={settings} siteUrl={site.url} />)}
           </div>
         </section>
       )}
