@@ -43,7 +43,7 @@ export type Testimonial = {
 };
 
 export type Settings = {
-  whatsapp: string; // international format, digits only, e.g. 919876543210
+  whatsapp: string; // international format, digits only, e.g. 919562195579
   currencySymbol: string;
   currencyCode: string;
   email: string;

@@ -196,7 +196,7 @@ export const seed: DB = {
     { id: "t6", name: "Sara A.", location: "Doha", rating: 5, product: "Ambre Soleil", quote: "Warm, cosy and incredibly long lasting. I sprayed it on a scarf and it still smelled amazing a week later." },
   ],
   settings: {
-    whatsapp: "919876543210",
+    whatsapp: "919562195579",
     currencySymbol: "₹",
     currencyCode: "INR",
     email: "hello@maisonelan.com",

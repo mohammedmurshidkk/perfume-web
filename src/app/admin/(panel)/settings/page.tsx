@@ -5,7 +5,7 @@ import { btn, card, input, label } from "@/components/admin/ui";
 export default async function AdminSettings({ searchParams }: PageProps<"/admin/settings">) {
   const [s, sp] = await Promise.all([getSettings({ fresh: true }), searchParams]);
   const fields: { k: keyof typeof s; l: string; hint?: string; wide?: boolean }[] = [
-    { k: "whatsapp", l: "WhatsApp number *", hint: "With country code, digits only. Example: 919876543210" },
+    { k: "whatsapp", l: "WhatsApp number *", hint: "With country code, digits only. Example: 919562195579" },
     { k: "phone", l: "Display phone" },
     { k: "email", l: "Email" },
     { k: "instagram", l: "Instagram URL" },
